@@ -38,12 +38,25 @@ enum macro_id {
     MAC_PRINT_SCREEN,
     RGB_LEVEL_DOWN,
     RGB_LEVEL_UP,
+    LAYER_2,
 };
 
 const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt) {
     keyevent_t event = record->event;
 
     switch (id) {
+        case LAYER_2:
+            if (!event.pressed) {
+                return MACRO(END);
+            }
+            if (IS_LAYER_ON(2)) {
+                layer_off(2);
+                return MACRO(D(LGUI), D(LSHIFT), D(LALT), D(LCTL), T(1),
+                    U(LCTL), U(LALT), U(LSHIFT), U(LGUI), END);
+            }
+            layer_on(2);
+            return MACRO(D(LGUI), D(LSHIFT), D(LALT), D(LCTL), T(2),
+                U(LCTL), U(LALT), U(LSHIFT), U(LGUI), END);
         case MAC_EXPOSE:
             return (event.pressed
                     ? MACRO(D(LCTL), T(UP), U(LCTL), END)
@@ -73,7 +86,7 @@ const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt) {
 
 const uint16_t fn_actions[] PROGMEM = {
     [0] = ACTION_LAYER_ONESHOT(1),
-    [1] = ACTION_LAYER_TOGGLE(2),
+    [1] = ACTION_MACRO(LAYER_2),
     [2] = ACTION_MODS_TAP_KEY(MOD_LCTL, KC_ESC),
     [3] = ACTION_MACRO(RGB_LEVEL_DOWN),
     [4] = ACTION_MACRO(RGB_LEVEL_UP),
